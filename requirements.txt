@@ -3,6 +3,6 @@ flask==2.2.3
 werkzeug==2.2.3
 flask-wtf==1.1.1
 apscheduler==3.10.1
-pillow==9.5.0
+pillow==10.3.0
 pyyaml==6.0
 python-dotenv==1.0.0 
