@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- 左侧：添加定时消息 -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-clock"></i> 创建定时消息</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('schedule') }}" enctype="multipart/form-data">
+                    <!-- 选择对话 -->
+                    <div class="mb-3">
+                        <label for="chat_id" class="form-label">选择对话</label>
+                        <select class="form-select" id="chat_id" name="chat_id" required>
+                            <option value="">-- 选择对话 --</option>
+                            {% for chat in chats %}
+                            <option value="{{ chat.id }}">{{ chat.title }} {% if chat.username %}(@{{ chat.username }}){% endif %} | {{ chat.type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- 消息类型 -->
+                    <div class="mb-3">
+                        <label for="message_type" class="form-label">消息类型</label>
+                        <select class="form-select" id="message_type" name="message_type" required>
+                            <option value="text">文本消息</option>
+                            <option value="media">媒体消息</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 消息格式（仅文本） -->
+                    <div class="mb-3" id="format_group">
+                        <label for="format" class="form-label">消息格式</label>
+                        <select class="form-select" id="format" name="format">
+                            <option value="plain">普通文本</option>
+                            <option value="md">Markdown格式</option>
+                            <option value="html">HTML格式</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 媒体文件（仅媒体消息） -->
+                    <div class="mb-3" id="media_group" style="display: none;">
+                        <label for="media_file" class="form-label">媒体文件</label>
+                        <input type="file" class="form-control" id="media_file" name="media_file">
+                        <div class="form-text text-muted">
+                            支持的格式：图片、视频、音频、文档<br>
+                            所有媒体文件将以图片/媒体预览格式发送，而非文档附件形式
+                        </div>
+                    </div>
+                    
+                    <!-- 消息内容 -->
+                    <div class="mb-3">
+                        <label for="content" class="form-label">消息内容</label>
+                        <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+                    </div>
+                    
+                    <!-- 发送时间 -->
+                    <div class="mb-3">
+                        <label for="schedule_time" class="form-label">发送时间</label>
+                        <input type="datetime-local" class="form-control" id="schedule_time" name="schedule_time" required>
+                    </div>
+                    
+                    <!-- 重复次数 -->
+                    <div class="mb-3">
+                        <label for="repeat_count" class="form-label">重复次数</label>
+                        <input type="number" class="form-control" id="repeat_count" name="repeat_count" min="1" value="1">
+                        <div class="form-text text-muted">消息将在定时时间点连续发送指定的次数</div>
+                    </div>
+                    
+                    <!-- 自动撤回选项 -->
+                    <div class="mb-3">
+                        <label class="form-label">自动撤回</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="auto_delete" id="auto_delete_no" value="no" checked>
+                            <label class="form-check-label" for="auto_delete_no">
+                                不自动撤回
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="auto_delete" id="auto_delete_yes" value="yes">
+                            <label class="form-check-label" for="auto_delete_yes">
+                                发送后自动撤回
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 撤回时间设置 -->
+                    <div class="mb-3" id="delete_time_group" style="display: none;">
+                        <label for="deleted_after_seconds" class="form-label">撤回时间（秒）</label>
+                        <input type="number" class="form-control" id="deleted_after_seconds" name="deleted_after_seconds" min="5" value="60">
+                        <div class="form-text text-muted">消息发送后多少秒自动撤回（最小5秒）</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-send"></i> 创建定时消息
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-person-plus"></i> 添加用户</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('add_user') }}">
+                    <div class="mb-3">
+                        <label class="form-label">输入方式</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="input_type" id="input_id" value="id" checked>
+                            <label class="form-check-label" for="input_id">
+                                按用户ID添加
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="input_type" id="input_username" value="username">
+                            <label class="form-check-label" for="input_username">
+                                按用户名添加
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="user_id_group">
+                        <label for="user_id" class="form-label">用户ID</label>
+                        <input type="text" class="form-control" id="user_id" name="user_id">
+                        <div class="form-text text-muted">输入数字ID，例如：12345678</div>
+                    </div>
+                    
+                    <div class="mb-3" id="username_group" style="display: none;">
+                        <label for="username" class="form-label">用户名</label>
+                        <div class="input-group">
+                            <span class="input-group-text">@</span>
+                            <input type="text" class="form-control" id="username" name="username">
+                        </div>
+                        <div class="form-text text-muted">输入用户名，无需@前缀</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="display_name" class="form-label">显示名称</label>
+                        <input type="text" class="form-control" id="display_name" name="display_name" required>
+                        <div class="form-text text-muted">在列表中显示的名称</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-person-plus"></i> 添加用户
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧：定时消息列表 -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> 定时消息列表</h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                <div class="list-group">
+                    {% for message in messages %}
+                    <div class="list-group-item message-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-1">发送到: {{ message.chat_title }}</h6>
+                            <small>
+                                {% if message.status == 'pending' %}
+                                <span class="badge bg-warning">等待中</span>
+                                {% elif message.status == 'sent' %}
+                                <span class="badge bg-success">已发送 {{ message.completed_count }}/{{ message.repeat_count }}</span>
+                                {% elif message.status == 'completed' %}
+                                <span class="badge bg-secondary">已完成</span>
+                                {% elif message.status == 'deleted' %}
+                                <span class="badge bg-danger">已撤回</span>
+                                {% else %}
+                                <span class="badge bg-danger">失败</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <p class="mb-1">{{ message.content[:100] }}{% if message.content|length > 100 %}...{% endif %}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                {{ message.schedule_time }} | 
+                                类型: {% if message.message_type == 'text' %}
+                                    <span class="badge bg-primary">文本{% if message.format %} ({{ message.format }}){% endif %}</span>
+                                {% else %}
+                                    <span class="badge bg-info">媒体</span>
+                                {% endif %}
+                                {% if 'deleted_after_seconds' in message and message.deleted_after_seconds > 0 %}
+                                    | <span class="badge bg-warning">自动撤回 {{ message.deleted_after_seconds }}秒</span>
+                                {% endif %}
+                                {% if message.status == 'deleted' %}
+                                    | <span class="badge bg-danger">已撤回</span>
+                                {% endif %}
+                            </small>
+                            
+                            <div>
+                                <form method="post" action="{{ url_for('delete_message', msg_id=message.id) }}" class="d-inline" onsubmit="return confirm('确定要删除这条定时消息吗？');">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 还没有创建任何定时消息。
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 处理输入方式切换
+        const inputTypeRadios = document.querySelectorAll('input[name="input_type"]');
+        const userIdGroup = document.getElementById('user_id_group');
+        const usernameGroup = document.getElementById('username_group');
+        
+        inputTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'id') {
+                    userIdGroup.style.display = 'block';
+                    usernameGroup.style.display = 'none';
+                    document.getElementById('user_id').setAttribute('required', '');
+                    document.getElementById('username').removeAttribute('required');
+                } else {
+                    userIdGroup.style.display = 'none';
+                    usernameGroup.style.display = 'block';
+                    document.getElementById('username').setAttribute('required', '');
+                    document.getElementById('user_id').removeAttribute('required');
+                }
+            });
+        });
+        
+        // 处理自动撤回选项切换
+        const autoDeleteRadios = document.querySelectorAll('input[name="auto_delete"]');
+        const deleteTimeGroup = document.getElementById('delete_time_group');
+        
+        autoDeleteRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'yes') {
+                    deleteTimeGroup.style.display = 'block';
+                    document.getElementById('deleted_after_seconds').setAttribute('required', '');
+                } else {
+                    deleteTimeGroup.style.display = 'none';
+                    document.getElementById('deleted_after_seconds').removeAttribute('required');
+                }
+            });
+        });
+        
+        // 自动填充当前时间
+        const scheduleTimeInput = document.getElementById('schedule_time');
+        if (scheduleTimeInput) {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + 5); // 默认设置为5分钟后
+            
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            scheduleTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    });
+</script>
+{% endblock %} 

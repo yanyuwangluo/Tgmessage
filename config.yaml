@@ -1,0 +1,18 @@
+# Telegram API设置
+telegram:
+  api_id: xxxxxx
+  api_hash: xxxxx
+  phone: +123456
+
+# Flask设置
+flask:
+  secret_key: "xxxxxxx"
+  debug: true
+
+# 数据库配置
+database:
+  path: "data/tgmessage.db"
+
+# 媒体文件存储路径
+media:
+  folder: "data/media" 

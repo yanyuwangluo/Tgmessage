@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-telegram"></i> 登录到Telegram账号</h4>
+            </div>
+            <div class="card-body">
+                {% if not need_code %}
+                <!-- 第一步：输入手机号 -->
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">手机号码（带国际区号，如+8613912345678）</label>
+                        <input type="text" class="form-control" id="phone" name="phone" required>
+                    </div>
+                    <button type="submit" name="phone_submit" class="btn btn-primary">发送验证码</button>
+                </form>
+                {% else %}
+                <!-- 第二步：输入验证码 -->
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="code" class="form-label">验证码（请查看Telegram)</label>
+                        <input type="text" class="form-control" id="code" name="code" required>
+                    </div>
+                    {% if need_password %}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">两步验证密码（如果设置了）</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+                    {% endif %}
+                    <button type="submit" name="code_submit" class="btn btn-primary">登录</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
